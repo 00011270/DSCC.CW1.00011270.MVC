@@ -12,7 +12,7 @@ namespace BlogPlatformMVC.Controllers
         public async Task<ActionResult> Index()
         {
             List<Category> categories = new List<Category>();
-            using(var client = new HttpClient())
+            using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(BaseURL);
                 client.DefaultRequestHeaders.Clear();
@@ -44,16 +44,33 @@ namespace BlogPlatformMVC.Controllers
         // POST: CategoryController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Create(Category category)
         {
-            try
+            var newCat = new Category
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
+                Id = category.Id,
+                Name = category.Name,
+            };
+            using (var client = new HttpClient())
             {
-                return View();
+                client.BaseAddress = new Uri(BaseURL);
+                client.DefaultRequestHeaders.Clear();
+
+                var applicationJson = "application/json";
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(applicationJson));
+
+                HttpResponseMessage response = await client.PostAsJsonAsync("api/Category", newCat);
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");
+                }
+                return View("Error");
             }
+
+
+            //var response = await client.PostAsync("api/Category/Post", new StringContent(JsonConvert.SerializeObject(newCat), System.Text.Encoding.UTF8, applicationJson));
+
+
         }
 
         // GET: CategoryController/Edit/5
@@ -65,15 +82,28 @@ namespace BlogPlatformMVC.Controllers
         // POST: CategoryController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<ActionResult> Edit(int id, Category category)
         {
-            try
+            var updateCat = new Category
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
+                Id = id,
+                Name = category.Name
+            };
+
+            using (var client = new HttpClient())
             {
-                return View();
+                client.BaseAddress = new Uri(BaseURL);
+                client.DefaultRequestHeaders.Clear();
+                var applicationJson = "application/json";
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(applicationJson));
+
+                HttpResponseMessage response = await client.PutAsJsonAsync("api/Category", updateCat);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");
+                }
+                return View("Error");
             }
         }
 
@@ -86,15 +116,23 @@ namespace BlogPlatformMVC.Controllers
         // POST: CategoryController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(int id, IFormCollection collection)
         {
-            try
+            using (var client = new HttpClient())
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+                client.BaseAddress = new Uri(BaseURL);
+                client.DefaultRequestHeaders.Clear();
+                var applicationJson = "application/json";
+
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(applicationJson));
+
+                HttpResponseMessage response = await client.DeleteAsync($"api/Category/{id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Redirect("Index");
+                }
+                return Redirect("Error");
             }
         }
     }
