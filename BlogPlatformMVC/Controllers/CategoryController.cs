@@ -130,9 +130,9 @@ namespace BlogPlatformMVC.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return Redirect("Index");
+                    return RedirectToAction("Index");
                 }
-                return Redirect("Error");
+                return View("Error");
             }
         }
     }

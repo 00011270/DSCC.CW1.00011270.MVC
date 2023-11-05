@@ -1,14 +1,35 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using BlogPlatformMVC.Models;
+using Newtonsoft.Json;
 
 namespace BlogPlatformMVC.Controllers
 {
     public class PostController : Controller
     {
+        private readonly string BaseURL = "https://localhost:7278/";
         // GET: PostController
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            return View();
+            //Will contain lists of posts from API
+            List<Post> posts = new List<Post>();
+
+            using(var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(BaseURL);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response = await client.GetAsync("api/Post");
+                if (response.IsSuccessStatusCode)
+                {
+                    var Response =  response.Content.ReadAsStringAsync().Result; 
+
+                    // Assigns all the posts from Response by deserializng Json to Model object
+                    posts = JsonConvert.DeserializeObject<List<Post>>(Response);
+                }
+                return View(posts);
+            }
         }
 
         // GET: PostController/Details/5
@@ -26,15 +47,32 @@ namespace BlogPlatformMVC.Controllers
         // POST: PostController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Create(Post post)
         {
-            try
+            var newPost = new Post
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
+                Id = post.Id,
+                CategoryId = post.CategoryId,
+                Content = post.Content,
+                CreatedAt = DateTime.Now,
+                Title = post.Title,
+            };
+
+            using (var client = new HttpClient())
             {
-                return View();
+                client.BaseAddress = new Uri(BaseURL);
+                client.DefaultRequestHeaders.Clear();
+
+                var applicationJson = "application/json";
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(applicationJson));
+
+
+                HttpResponseMessage response = await client.PostAsJsonAsync("api/Post", newPost);
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");
+                }
+                return View("Error");
             }
         }
 
@@ -47,15 +85,30 @@ namespace BlogPlatformMVC.Controllers
         // POST: PostController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<ActionResult> Edit(int id, Post post)
         {
-            try
+            var updatePost = new Post
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
+                Id = id,
+                CategoryId = post.CategoryId,
+                Content = post.Content,
+                CreatedAt = DateTime.Now,
+                Title = post.Title,
+            };
+
+            using(var client = new HttpClient())
             {
-                return View();
+                client.BaseAddress = new Uri(BaseURL);
+                client.DefaultRequestHeaders.Clear();
+                var applicationJson = "application/json";
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(applicationJson));
+
+                HttpResponseMessage response = await client.PutAsJsonAsync("api/Post", updatePost);
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");
+                }
+                return View("Error");
             }
         }
 
@@ -68,15 +121,22 @@ namespace BlogPlatformMVC.Controllers
         // POST: PostController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(int id, Post post)
         {
-            try
+            using(var client = new HttpClient())
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+                client.BaseAddress = new Uri(BaseURL);
+                client.DefaultRequestHeaders.Clear();
+                var applicationJson = "application/json";
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(applicationJson));
+
+                HttpResponseMessage response = await client.DeleteAsync($"api/Post/{id}");
+
+                if(response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");
+                }
+                return View("Error");
             }
         }
     }
