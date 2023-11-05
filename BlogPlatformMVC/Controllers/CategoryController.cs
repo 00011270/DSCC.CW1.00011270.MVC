@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 
 namespace BlogPlatformMVC.Controllers
 {
@@ -71,6 +72,29 @@ namespace BlogPlatformMVC.Controllers
             //var response = await client.PostAsync("api/Category/Post", new StringContent(JsonConvert.SerializeObject(newCat), System.Text.Encoding.UTF8, applicationJson));
 
 
+        }
+
+        //GET: CategoryController/2/Posts
+        public async Task<ActionResult> GetPostsByCategoryId(int categoryId)
+        {
+            List<Post> posts = new List<Post>();
+            using(var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(BaseURL);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = await client.GetAsync($"api/Category/{categoryId}/posts");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    posts = JsonConvert.DeserializeObject<List<Post>>(content);
+                }
+                return View(posts);
+            }
+                
+            
         }
 
         // GET: CategoryController/Edit/5

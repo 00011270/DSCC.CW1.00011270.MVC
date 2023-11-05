@@ -1,0 +1,12 @@
+﻿@model IEnumerable<BlogPlatformMVC.Models.Post>
+
+<h2>Related Posts</h2>
+<ul>
+    @foreach (var post in Model)
+    {
+        <li>
+            <strong>@post.Title</strong><br />
+            @post.Content
+        </li>
+    }
+</ul>
