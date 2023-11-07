@@ -12,7 +12,7 @@ namespace BlogPlatformMVC.Controllers
         public async Task<ActionResult> Index()
         {
             //Will contain lists of posts from API
-            List<Post> posts = new List<Post>();
+            List<Post>? posts = new List<Post>();
 
             using(var client = new HttpClient())
             {
@@ -102,8 +102,10 @@ namespace BlogPlatformMVC.Controllers
         {
             var updatePost = new Post
             {
+                Id = id,
                 Content = post.Content,
                 Title = post.Title,
+                CategoryId = post.CategoryId
             };
 
             using(var client = new HttpClient())
@@ -113,7 +115,7 @@ namespace BlogPlatformMVC.Controllers
                 var applicationJson = "application/json";
                 client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(applicationJson));
 
-                HttpResponseMessage response = await client.PutAsJsonAsync("api/Post", updatePost);
+                HttpResponseMessage response = await client.PutAsJsonAsync($"api/Post/{id}", updatePost);
                 if (response.IsSuccessStatusCode)
                 {
                     return RedirectToAction("Index");

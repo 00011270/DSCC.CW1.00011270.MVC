@@ -8,7 +8,7 @@ namespace BlogPlatformMVC.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly string BaseURL = "https://localhost:7278/";
+        private readonly string BaseURL = "http://ec2-54-234-4-13.compute-1.amazonaws.com/";
         // GET: CategoryController
         public async Task<ActionResult> Index()
         {
@@ -106,12 +106,12 @@ namespace BlogPlatformMVC.Controllers
         // POST: CategoryController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, Category category)
+        public async Task<ActionResult> Edit(int id, string Name)
         {
             var updateCat = new Category
             {
                 Id = id,
-                Name = category.Name
+                Name = Name
             };
 
             using (var client = new HttpClient())
@@ -121,7 +121,7 @@ namespace BlogPlatformMVC.Controllers
                 var applicationJson = "application/json";
                 client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(applicationJson));
 
-                HttpResponseMessage response = await client.PutAsJsonAsync("api/Category", updateCat);
+                HttpResponseMessage response = await client.PutAsJsonAsync($"api/Category/{id}", updateCat);
 
                 if (response.IsSuccessStatusCode)
                 {
