@@ -33,9 +33,24 @@ namespace BlogPlatformMVC.Controllers
         }
 
         // GET: PostController/Details/5
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(int id)
         {
-            return View();
+            var post = new Post();
+            using(var client = new HttpClient())
+            {
+                client.BaseAddress=new Uri(BaseURL);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                var response = await client.GetAsync($"api/Post/{id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    post = JsonConvert.DeserializeObject<Post>(content);
+                }
+                return View(post);
+            }
         }
 
         // GET: PostController/Create
@@ -51,10 +66,8 @@ namespace BlogPlatformMVC.Controllers
         {
             var newPost = new Post
             {
-                Id = post.Id,
                 CategoryId = post.CategoryId,
                 Content = post.Content,
-                CreatedAt = DateTime.Now,
                 Title = post.Title,
             };
 
@@ -89,10 +102,7 @@ namespace BlogPlatformMVC.Controllers
         {
             var updatePost = new Post
             {
-                Id = id,
-                CategoryId = post.CategoryId,
                 Content = post.Content,
-                CreatedAt = DateTime.Now,
                 Title = post.Title,
             };
 
