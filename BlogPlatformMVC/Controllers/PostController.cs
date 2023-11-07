@@ -7,7 +7,7 @@ namespace BlogPlatformMVC.Controllers
 {
     public class PostController : Controller
     {
-        private readonly string BaseURL = "https://localhost:7278/";
+        private readonly string BaseURL = "http://ec2-54-234-4-13.compute-1.amazonaws.com/";
         // GET: PostController
         public async Task<ActionResult> Index()
         {
@@ -23,7 +23,7 @@ namespace BlogPlatformMVC.Controllers
                 HttpResponseMessage response = await client.GetAsync("api/Post");
                 if (response.IsSuccessStatusCode)
                 {
-                    var Response =  response.Content.ReadAsStringAsync().Result; 
+                    var Response =  await response.Content.ReadAsStringAsync();
 
                     // Assigns all the posts from Response by deserializng Json to Model object
                     posts = JsonConvert.DeserializeObject<List<Post>>(Response);
