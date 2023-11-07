@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 
+// Project made by 00011270
+// For CC module level 6 WIUT
 namespace BlogPlatformMVC.Controllers
 {
     public class CategoryController : Controller

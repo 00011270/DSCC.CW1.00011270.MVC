@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using BlogPlatformMVC.Models;
 using Newtonsoft.Json;
 
+// Project made by 00011270
+// For CC module level 6 WIUT
 namespace BlogPlatformMVC.Controllers
 {
     public class PostController : Controller
